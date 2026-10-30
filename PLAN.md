@@ -424,18 +424,18 @@ Patrones de URL observados:
 **Archivos:** `infra/bootstrap/*.tf` (estado **local**; agregar `infra/bootstrap/terraform.tfstate` al `.gitignore` o guardarlo en un lugar seguro).
 
 **Recursos**
-- [ ] `azurerm_resource_group` `rg-macro-peru-tfstate`
-- [ ] `azurerm_storage_account` (nombre único, `min_tls_version = "TLS1_2"`, `allow_nested_items_to_be_public = false`) + `azurerm_storage_container` `tfstate`
-- [ ] `azuread_application` `sp-macro-peru-cicd` + `azuread_service_principal`
-- [ ] `azuread_application_federated_identity_credential` (issuer `https://token.actions.githubusercontent.com`, audience `api://AzureADTokenExchange`):
+- [x] `azurerm_resource_group` `rg-macro-peru-tfstate`
+- [x] `azurerm_storage_account` (nombre único, `min_tls_version = "TLS1_2"`, `allow_nested_items_to_be_public = false`) + `azurerm_storage_container` `tfstate`
+- [x] `azuread_application` `sp-macro-peru-cicd` + `azuread_service_principal`
+- [x] `azuread_application_federated_identity_credential` (issuer `https://token.actions.githubusercontent.com`, audience `api://AzureADTokenExchange`):
   - `repo:<usuario>/macro-peru-agent:ref:refs/heads/main`
   - `repo:<usuario>/macro-peru-agent:pull_request`
   - `repo:<usuario>/macro-peru-agent:environment:prod`
-- [ ] Role assignments del SP:
+- [x] Role assignments del SP:
   - `Contributor` sobre la suscripción (o un RG dedicado, más estricto, si se prefiere).
   - `User Access Administrator` acotado, **solo si** Terraform debe crear role assignments (el Access Connector necesita `Storage Blob Data Contributor`). Alternativa más segura: crear ese role assignment en bootstrap.
   - `Storage Blob Data Contributor` sobre el storage del tfstate.
-- [ ] Outputs: `client_id`, `tenant_id`, `subscription_id`, `tfstate_storage_account`.
+- [x] Outputs: `client_id`, `tenant_id`, `subscription_id`, `tfstate_storage_account`.
 
 **👤 MANUAL después de aplicar**
 ```bash
@@ -446,7 +446,7 @@ gh variable set AZURE_TENANT_ID --body "<tenant_id>"
 gh variable set AZURE_SUBSCRIPTION_ID --body "<subscription_id>"
 gh variable set TFSTATE_STORAGE_ACCOUNT --body "<nombre>"
 ```
-- [ ] Crear el environment `prod` en GitHub con aprobación requerida.
+- [x] Crear el environment `prod` en GitHub con aprobación requerida.
 
 **Criterios de aceptación**
 - `az ad sp show --id <client_id>` responde.
@@ -478,27 +478,27 @@ terraform {
 **`providers.tf`:** `azurerm ~> 4.x`, `azuread ~> 3.x`, `databricks ~> 1.x` (⚠️ VERIFICAR las últimas versiones estables). El provider `databricks` se configura con `host = azurerm_databricks_workspace.this.workspace_url` y `azure_workspace_resource_id`.
 
 **Recursos (`main.tf`)**
-- [ ] `azurerm_resource_group` `rg-macro-peru-dev` en `eastus2`
-- [ ] `azurerm_storage_account` ADLS Gen2 (`is_hns_enabled = true`) + container `uc-root`
-- [ ] `azurerm_databricks_access_connector` (system-assigned identity)
-- [ ] `azurerm_role_assignment` → `Storage Blob Data Contributor` del access connector sobre el storage
-- [ ] `azurerm_databricks_workspace` (`sku = "premium"`, nombre `dbw-macro-peru-dev`)
+- [x] `azurerm_resource_group` `rg-macro-peru-dev` en `eastus2`
+- [x] `azurerm_storage_account` ADLS Gen2 (`is_hns_enabled = true`) + container `uc-root`
+- [x] `azurerm_databricks_access_connector` (system-assigned identity)
+- [x] `azurerm_role_assignment` → `Storage Blob Data Contributor` del access connector sobre el storage
+- [x] `azurerm_databricks_workspace` (`sku = "premium"`, nombre `dbw-macro-peru-dev`)
   - Los workspaces nuevos se asignan automáticamente al metastore de UC de la región. ⚠️ VERIFICAR que pasó; si no, `databricks_metastore_assignment`.
 
 **Recursos (`unity_catalog.tf`)**
-- [ ] `databricks_storage_credential` (con el access connector)
-- [ ] `databricks_external_location` → `abfss://uc-root@<storage>.dfs.core.windows.net/`
-- [ ] `databricks_catalog` `macro_peru_dev` con `storage_root` en la external location
-- [ ] `databricks_schema`: `raw`, `bronze`, `silver`, `gold`, `agents`
-- [ ] `databricks_volume`: `raw.raw_api`, `raw.raw_docs` (managed)
-- [ ] `databricks_grants`: el SP de CI/CD con `USE_CATALOG`, `USE_SCHEMA`, `CREATE_TABLE`, `CREATE_FUNCTION`, `CREATE_MODEL`, `READ_VOLUME`, `WRITE_VOLUME`, etc.; tu usuario como owner
+- [x] `databricks_storage_credential` (con el access connector)
+- [x] `databricks_external_location` → `abfss://uc-root@<storage>.dfs.core.windows.net/`
+- [x] `databricks_catalog` `macro_peru_dev` con `storage_root` en la external location
+- [x] `databricks_schema`: `raw`, `bronze`, `silver`, `gold`, `agents`
+- [x] `databricks_volume`: `raw.raw_api`, `raw.raw_docs` (managed)
+- [x] `databricks_grants`: el SP de CI/CD con `USE_CATALOG`, `USE_SCHEMA`, `CREATE_TABLE`, `CREATE_FUNCTION`, `CREATE_MODEL`, `READ_VOLUME`, `WRITE_VOLUME`, etc.; tu usuario como owner
 
 **Recursos (`identity.tf`)**
-- [ ] `databricks_service_principal` con `application_id = <client_id del bootstrap>` y entitlements (`workspace_access`, `databricks_sql_access`)
-- [ ] El SP debe poder crear jobs, pipelines y endpoints; agregarlo al grupo `admins` del workspace es lo más simple para un proyecto personal (documentar el trade-off)
+- [x] `databricks_service_principal` con `application_id = <client_id del bootstrap>` y entitlements (`workspace_access`, `databricks_sql_access`)
+- [x] El SP debe poder crear jobs, pipelines y endpoints; agregarlo al grupo `admins` del workspace es lo más simple para un proyecto personal (documentar el trade-off)
 
 **Recursos (`budget.tf`)**
-- [ ] `azurerm_consumption_budget_resource_group` sobre `rg-macro-peru-dev` **y** sobre el RG administrado de Databricks, con alertas al 50%, 80% y 100% (monto en `dev.tfvars`)
+- [x] `azurerm_consumption_budget_resource_group` sobre `rg-macro-peru-dev` **y** sobre el RG administrado de Databricks, con alertas al 50%, 80% y 100% (monto en `dev.tfvars`)
 
 **Outputs:** `workspace_url`, `workspace_id`, `catalog_name`.
 
@@ -512,10 +512,10 @@ terraform apply tfplan     # 👤 confirmar antes
 ```
 
 **👤 MANUAL después de aplicar**
-- [ ] Entrar al workspace y verificar UC (Catalog Explorer → `macro_peru_dev`).
-- [ ] En **Serving**, anotar los endpoints de Foundation Models disponibles: LLM candidato y `databricks-qwen3-embedding-0-6b`. Si alguno no está, decidir el plan B.
-- [ ] Verificar que **serverless** esté habilitado (jobs, pipelines y notebooks).
-- [ ] `databricks auth login --host <workspace_url> --profile macro-dev`
+- [x] Entrar al workspace y verificar UC (Catalog Explorer → `macro_peru_dev`).
+- [x] En **Serving**, anotar los endpoints de Foundation Models disponibles: LLM candidato y `databricks-qwen3-embedding-0-6b`. Si alguno no está, decidir el plan B.
+- [x] Verificar que **serverless** esté habilitado (jobs, pipelines y notebooks).
+- [x] `databricks auth login --host <workspace_url> --profile macro-dev`
 
 **Criterios de aceptación**
 - `terraform plan` sin cambios después del apply (idempotente).
@@ -542,7 +542,7 @@ variables:
     description: Catálogo de Unity Catalog
   llm_endpoint:
     description: Endpoint del LLM del agente
-    default: "<completar tras F3>"
+    default: databricks-claude-sonnet-5-5  # verified in the workspace on 2026-10-30
   embedding_endpoint:
     default: databricks-qwen3-embedding-0-6b
   vs_endpoint:
