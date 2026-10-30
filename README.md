@@ -7,6 +7,7 @@ Proyecto educativo con datos reales, preparado para el **Iquitos Data Fest**.
 - Plan por fases: [`PLAN.md`](PLAN.md)
 - Plan actualizado y hallazgos sobre las fuentes: [`docs/plan-actualizado.md`](docs/plan-actualizado.md)
 - Contexto para Claude Code: [`CLAUDE.md`](CLAUDE.md)
+- **Cómo retomar, costos y pendientes:** [`docs/RETOMAR.md`](docs/RETOMAR.md)
 
 ## Entorno local
 
