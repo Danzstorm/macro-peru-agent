@@ -1,0 +1,31 @@
+{
+"config":
+{
+"title":"Producto bruto interno y otros indicadores",
+"series":
+[
+{
+"name":"Producto bruto interno y otros indicadores - PBI (variación porcentual)",
+"dec":"1"
+}]
+},
+"periods":
+[
+{
+"name":"2022",
+"values":["2.81819976987148"]
+},
+{
+"name":"2023",
+"values":["-0.350699813229639"]
+},
+{
+"name":"2024",
+"values":["3.5152749172251"]
+},
+{
+"name":"2025",
+"values":["3.44437227184204"]
+}
+]
+}

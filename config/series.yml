@@ -1,0 +1,58 @@
+# Curated BCRPData series. Every code was verified against the live API on 2026-10-30.
+# Frequency is the last letter of the code: D daily, M monthly, Q quarterly, A annual.
+series:
+  - codigo: PD04638PD
+    alias: tipo_cambio_venta
+    frecuencia: diaria
+    unidad: S/ por US$
+    descripcion: Tipo de cambio interbancario, venta (promedio del día).
+  - codigo: PD12301MD
+    alias: tasa_referencia
+    frecuencia: diaria
+    unidad: "%"
+    descripcion: Tasa de referencia de la política monetaria del BCRP.
+  - codigo: PD04650MD
+    alias: reservas_internacionales
+    frecuencia: diaria
+    unidad: millones US$
+    descripcion: Reservas internacionales netas.
+  - codigo: PN01273PM
+    alias: inflacion_12m
+    frecuencia: mensual
+    unidad: var. % 12 meses
+    descripcion: Inflación a 12 meses, IPC de Lima Metropolitana.
+  - codigo: PN01277PM
+    alias: inflacion_sae_12m
+    frecuencia: mensual
+    unidad: var. % 12 meses
+    descripcion: Inflación a 12 meses sin alimentos y energía, Lima Metropolitana.
+  - codigo: PN01279PM
+    alias: inflacion_subyacente_12m
+    frecuencia: mensual
+    unidad: var. % 12 meses
+    descripcion: Inflación subyacente a 12 meses, Lima Metropolitana.
+  - codigo: PD12912AM
+    alias: expectativa_inflacion_12m
+    frecuencia: mensual
+    unidad: "%"
+    descripcion: Expectativa de inflación a 12 meses (encuesta de expectativas macroeconómicas).
+  - codigo: PN01728AM
+    alias: pbi_var_12m
+    frecuencia: mensual
+    unidad: var. % interanual
+    descripcion: PBI, variación porcentual interanual del mes.
+  - codigo: PN02526AQ
+    alias: pbi_var_trimestral
+    frecuencia: trimestral
+    unidad: var. % real
+    descripcion: PBI por tipo de gasto, variación porcentual real del trimestre.
+  - codigo: PM04863AA
+    alias: pbi_var_anual
+    frecuencia: anual
+    unidad: var. %
+    descripcion: PBI, variación porcentual anual.
+  - codigo: PN01652XM
+    alias: precio_cobre
+    frecuencia: mensual
+    unidad: ¢US$ por libra
+    descripcion: Cotización del cobre en LME, promedio del mes.
