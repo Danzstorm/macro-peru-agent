@@ -8,7 +8,7 @@
 |---|---|---|
 | F0 Bootstrap del repo | ✅ Hecha | Python 3.12 con `uv`, `ruff` y `pytest` en verde. Falta crear el repo remoto (pendiente de confirmación). |
 | F1.1 API BCRPData | ✅ Hecha | Cliente con bypass del filtro anti-bot, 11 series verificadas, 36 tests. |
-| F1.2 PDFs del BCRP | ⏳ Pendiente | Los PDFs dan 403 desde la red local; ver más abajo. |
+| F1.2 PDFs del BCRP | 🔄 En curso | El sitio web exige verificación humana; los PDFs se descargan a mano (sección 1). |
 | F2 en adelante | ⏳ Pendiente | Sin cambios de alcance, con los ajustes de la sección 5. |
 
 ---
@@ -26,7 +26,8 @@ Cualquier cliente que no ejecute JavaScript recibe, **con status 200**, una pág
 | API con `curl` o `requests` (cualquier User-Agent, HTTP/1.1, HTTP plano) | ❌ Página del desafío | ❌ Página del desafío |
 | API con Chromium headless (Playwright) | ✅ JSON (~8 s) | ✅ JSON (~15 s) |
 | API con `requests` + cookies obtenidas por Chromium | ✅ JSON | ✅ (mismo mecanismo) |
-| PDF de un Reporte de Inflación con `curl` | ❌ 403 | ✅ 200 |
+| PDF de un Reporte de Inflación con `curl` | ❌ 403 | ❌ Página del desafío con status 200 (6183 bytes, no es un PDF) |
+| PDF o páginas de `www.bcrp.gob.pe` con Chromium headless | ❌ 403 | ❌ Iframe de verificación interactiva (tipo CAPTCHA) |
 
 La prueba en Azure se hizo con un Azure Container Instance temporal (eliminado al terminar) para simular la red desde la que corren los jobs.
 
@@ -34,7 +35,8 @@ La prueba en Azure se hizo con un Azure Container Instance temporal (eliminado a
 
 1. No importa el cliente HTTP: Incapsula exige ejecutar un desafío en JavaScript.
 2. Un navegador headless lo resuelve y deja cookies (`visid_incap_*`, `incap_ses_*`) válidas para llamadas HTTP normales, siempre que se envíen con el mismo User-Agent.
-3. Los PDFs tienen otra regla: se bloquea la red local, pero no las IP de Azure.
+3. El sitio web (`www.bcrp.gob.pe`, donde están los PDFs) usa un modo más estricto: pide verificación interactiva incluso a un navegador headless. **No se automatiza**, porque evadir un CAPTCHA ya no es usar datos públicos con cuidado, es saltarse un control explícito.
+4. **Lección dentro de la lección:** la primera prueba de PDFs desde Azure pareció exitosa (status 200), pero era la página del desafío. Validar el contenido (la firma `%PDF`), no solo el status HTTP.
 
 ---
 
@@ -113,9 +115,9 @@ Esquema real de la respuesta (confirma el supuesto 1 del plan):
 
 | Fase | Cambio |
 |---|---|
-| **F1.2** | Validar las URLs de los PDFs **desde Azure** (o con Playwright), porque desde la red local dan 403. `scripts/validate_manifest.py` debe correr en un entorno con IP de Azure o usar el navegador. |
+| **F1.2** | Los PDFs se **descargan a mano** desde el navegador a `data/pdfs/` y se suben al Volume `raw_docs` con `databricks fs cp`. `config/documentos.yml` sigue siendo el manifiesto curado; `scripts/validate_manifest.py` valida los archivos locales (firma `%PDF`, páginas, sha256) en lugar de las URLs. |
 | **F3** | Al crear el workspace, verificar también que serverless tenga salida a internet hacia `bcrp.gob.pe`. |
-| **F4 / F6** | `ingest_docs` puede descargar los PDFs con HTTP simple desde el workspace (IP de Azure). Sin cambios de diseño. |
+| **F4 / F6** | `ingest_docs` deja de descargar: registra en `bronze.documentos_manifest` los PDFs ya subidos al Volume (idempotente por `doc_id` y sha256). El resto del pipeline documental no cambia. |
 | **F5** | **Nuevo punto a verificar:** si Chromium (Playwright) corre en un job serverless, porque necesita librerías del sistema. Si corre, `ingest_series` usa `BcrpClient` tal cual. Si no corre, el **plan B** es que la ingesta de series la haga un workflow programado de GitHub Actions (también con IP de Azure, con Playwright soportado y autenticado por OIDC) que suba los JSON al Volume `raw_api`. El resto del medallion no cambia. |
 | **F5 (silver)** | Mapear valores por código de serie, nunca por posición. Reusar `periods.py` como UDF. |
 | **F11** | Si se usa el plan B, el workflow de ingesta se suma a los de CI/CD. |
