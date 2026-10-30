@@ -53,6 +53,20 @@ resource "azurerm_role_assignment" "connector_storage" {
   principal_id         = azurerm_databricks_access_connector.this.identity[0].principal_id
 }
 
+# File events (on by default for new external locations): Databricks creates an
+# Event Grid subscription and a Storage Queue so file arrival triggers and Auto Loader
+# see new files. Without these roles the setup fails silently and triggers never fire.
+resource "azurerm_role_assignment" "connector_file_events" {
+  for_each = {
+    "Storage Queue Data Contributor" = azurerm_storage_account.uc.id
+    "Storage Account Contributor"    = azurerm_storage_account.uc.id
+    "EventGrid Data Contributor"     = azurerm_resource_group.this.id
+  }
+  scope                = each.value
+  role_definition_name = each.key
+  principal_id         = azurerm_databricks_access_connector.this.identity[0].principal_id
+}
+
 resource "azurerm_databricks_workspace" "this" {
   name                        = "dbw-${local.name}"
   resource_group_name         = azurerm_resource_group.this.name
