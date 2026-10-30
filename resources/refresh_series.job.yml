@@ -1,0 +1,17 @@
+resources:
+  jobs:
+    refresh_series:
+      name: macro-peru-refresh-series
+      description: >
+        Runs the series pipeline whenever GitHub Actions lands new BCRPData files
+        in the raw_api Volume.
+      trigger:
+        # Explicit: development mode would pause it otherwise.
+        pause_status: UNPAUSED
+        file_arrival:
+          url: /Volumes/${var.catalog}/raw/raw_api/series/
+          min_time_between_triggers_seconds: 300
+      tasks:
+        - task_key: series_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.series.id}

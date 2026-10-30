@@ -1,0 +1,58 @@
+# Daily BCRPData ingestion (plan B, see docs/plan-actualizado.md section 5).
+# Runs here instead of a Databricks job because the API needs headless Chromium
+# to pass its bot filter, and serverless compute lacks Chromium's system libraries.
+# New files in the raw_api Volume trigger the refresh_series job (file arrival).
+name: ingest-series
+
+on:
+  schedule:
+    - cron: "0 13 * * *" # 08:00 America/Lima (UTC-5, no DST)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: full (since 2015) or incremental (last 120 days)
+        type: choice
+        options: [incremental, full]
+        default: incremental
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency: ingest-series
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    env:
+      CATALOG: macro_peru_dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies and Chromium
+        run: |
+          uv sync --frozen
+          uv run playwright install --with-deps chromium
+
+      - name: Fetch series from BCRPData
+        run: uv run python -m macro_peru.ingestion.ingest_series --out-dir landing --mode "${{ inputs.mode || 'incremental' }}"
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: databricks/setup-cli@main
+
+      - name: Upload to the raw_api Volume
+        env:
+          DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+          DATABRICKS_AUTH_TYPE: azure-cli
+        run: |
+          # Catalog first: the pipeline reads it in the same update the new series trigger.
+          databricks fs cp --overwrite landing/catalog/series_catalogo.json \
+            "dbfs:/Volumes/$CATALOG/raw/raw_api/catalog/series_catalogo.json"
+          databricks fs cp --recursive landing/series "dbfs:/Volumes/$CATALOG/raw/raw_api/series"

@@ -9,7 +9,9 @@
 | F0 Bootstrap del repo | ✅ Hecha | Python 3.12 con `uv`, `ruff` y `pytest` en verde. Falta crear el repo remoto (pendiente de confirmación). |
 | F1.1 API BCRPData | ✅ Hecha | Cliente con bypass del filtro anti-bot, 11 series verificadas, 36 tests. |
 | F1.2 PDFs del BCRP | 🔄 En curso | El sitio web exige verificación humana; los PDFs se descargan a mano (sección 1). |
-| F2 en adelante | ⏳ Pendiente | Sin cambios de alcance, con los ajustes de la sección 5. |
+| F2 / F3 Azure + Terraform | ✅ Hecha | Workspace `dbw-macro-peru-dev`, catálogo `macro_peru_dev`. |
+| F5 Series | ✅ Hecha (2026-10-30) | Plan B: ingesta en GitHub Actions (`ingest-series.yml`) → Volume `raw_api` → job `refresh_series` (file arrival) → pipeline `series`. Gold con las 11 series desde 2015, sin duplicados por (alias, fecha). |
+| F4 / F6 en adelante | ⏳ Pendiente | Sin cambios de alcance, con los ajustes de la sección 5. |
 
 ---
 

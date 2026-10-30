@@ -1,0 +1,31 @@
+bundle:
+  name: macro-peru-agent
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for this target
+  llm_endpoint:
+    description: LLM serving endpoint used by the agent
+    default: databricks-claude-sonnet-5-5
+  embedding_endpoint:
+    description: Embedding endpoint used by Vector Search
+    default: databricks-qwen3-embedding-0-6b
+  vs_endpoint:
+    description: Vector Search endpoint name
+    default: vs-macro-peru
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405618273251585.5.azuredatabricks.net
+    variables:
+      catalog: macro_peru_dev
+    presets:
+      tags:
+        project: macro-peru
+        env: dev

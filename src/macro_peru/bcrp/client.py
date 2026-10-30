@@ -17,6 +17,7 @@ Other API quirks handled here:
 import json
 import logging
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 
 import requests
@@ -40,7 +41,14 @@ def solve_challenge(url: str) -> tuple[dict[str, str], str]:
     """Load the URL in headless Chromium until the bot filter lets it through.
 
     Returns the browser cookies and its User-Agent, which must be sent together.
+    The sync Playwright API refuses to run inside a running asyncio loop, and
+    Databricks serverless tasks and notebooks have one, so it runs in a worker thread.
     """
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(_solve_challenge, url).result()
+
+
+def _solve_challenge(url: str) -> tuple[dict[str, str], str]:
     from playwright.sync_api import sync_playwright  # heavy, only needed when challenged
 
     with sync_playwright() as p:

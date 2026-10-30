@@ -1,0 +1,15 @@
+resources:
+  pipelines:
+    series:
+      name: macro-peru-series
+      catalog: ${var.catalog}
+      schema: silver
+      serverless: true
+      continuous: false
+      channel: current
+      root_path: ../src/macro_peru/pipelines/series
+      libraries:
+        - glob:
+            include: ../src/macro_peru/pipelines/series/**
+      configuration:
+        catalog: ${var.catalog}
