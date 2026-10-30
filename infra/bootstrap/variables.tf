@@ -10,7 +10,7 @@ variable "location" {
 }
 
 variable "github_repo" {
-  description = "GitHub repository allowed to authenticate through OIDC (owner/name)"
+  description = "GitHub repository as it appears in the OIDC token subject. Repos with immutable subjects (GitHub default) use owner@owner_id/name@repo_id; check GET /repos/{owner}/{repo}/actions/oidc/customization/sub"
   type        = string
-  default     = "Danzstorm/macro-peru-agent"
+  default     = "Danzstorm@54243238/macro-peru-agent@1440036337"
 }
